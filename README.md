@@ -31,6 +31,17 @@ This project was inspired by focusing on shader programming, hence the project n
 
 ## Installation
 
+## Build Source File
+### Windows
+- Clone repo
+- Perform:
+```bash
+cmake -S source -B build -DCMAKE_TOOLCHAIN_FILE=C:/path/to/your/vcpkg.cmake
+cmake --build build
+```
+  - Open ShaderExe.sln with Visual Studio
+  - Build ShaderExe project
+
 ## Usage
 
 ## Contributing

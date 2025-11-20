@@ -31,7 +31,7 @@ function(find_packages)
           message(WARNING "VCPKG_ROOT not defined. Please set it (setx VCPKG_ROOT \"C:/path/to/vcpkg\" or pass the toolchain file ().") 
         endif()
 
-        find_package(${package} REQUIRED)
+        find_package(${package} CONFIG REQUIRED)
     else()
         message(STATUS "Current operating system unknown...")
 
@@ -99,10 +99,8 @@ function(link_all)
   target_link_libraries(ShaderExe PUBLIC spdlog::spdlog SDL2::SDL2 Engine)
 
   target_link_libraries(Engine PUBLIC SDL2::SDL2 glad UI Physics Logger)
-
   target_link_libraries(Camera PUBLIC SDL2::SDL2 glad glm::glm)
   target_link_libraries(imgui PUBLIC SDL2::SDL2)
-  target_link_libraries(ElementBuffer PUBLIC glad)
   target_link_libraries(Mesh PUBLIC assimp::assimp glm::glm glad Shader )
   target_link_libraries(Model PUBLIC glm::glm glad stb_image assimp::assimp Mesh)
   target_link_libraries(Shader PUBLIC glad glm::glm)
@@ -112,9 +110,22 @@ function(link_all)
   target_link_libraries(VertexArray PUBLIC glad)
 
   if (UNIX)
+    target_link_libraries(ElementBuffer PUBLIC glad)
+  elseif(WIN32)
+    target_link_libraries(ElementBuffer PUBLIC glad assimp::assimp)
+  endif()
+
+  if (WIN32)
+    target_link_libraries(Logger PUBLIC spdlog::spdlog_header_only)
+  endif()
+
+  if (UNIX)
     target_link_libraries(Physics PUBLIC BulletDynamics BulletCollision LinearMath)
   elseif(WIN32)
-    target_link_libraries(Physics PUBLIC ${BULLET_LIBRARIES})
+    target_link_libraries(Physics PUBLIC
+	$<$<CONFIG:Debug>:BulletCollision BulletDynamics LinearMath>
+        $<$<CONFIG:Release>:BulletCollision BulletDynamics LinearMath>
+    )
   endif()
 
   message(STATUS "All targets linked.")
