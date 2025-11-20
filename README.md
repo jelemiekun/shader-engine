@@ -39,7 +39,7 @@ This project was inspired by focusing on shader programming, hence the project n
 cmake -S source -B build -DCMAKE_TOOLCHAIN_FILE=C:/path/to/your/vcpkg.cmake
 cmake --build build
 ```
-  - Open ShaderExe.sln with Visual Studio
+  - Open ShaderEngine.sln with Visual Studio
   - Build ShaderExe project
 
 ## Usage
