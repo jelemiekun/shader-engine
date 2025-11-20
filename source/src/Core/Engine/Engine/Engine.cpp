@@ -1,20 +1,29 @@
 #include "Engine.h"
 #include "Camera.h"
-#include "ImGUIWindow.h"
 #include "Physics.h"
+#include "UI.h"
 #include "backends/imgui_impl_sdl2.h"
 #include <SDL2/SDL.h>
 #include <SDL_events.h>
 #include <SDL_video.h>
 #include <glad/glad.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+
+static auto engineLog = spdlog::stdout_color_mt("Engine");
+static UI *ui = UI::getInstance();
+static Physics *physics = Physics::getInstance();
 
 // Constructors and Destructors
 Engine::Engine() : m_Window(nullptr) {
   spdlog::info("[Engine] Engine instance created.");
 }
 
-Engine::~Engine() { spdlog::info("[Engine] Engine instance destroyed."); }
+Engine::~Engine() {
+  engineLog->info("Engine instance destroyed.");
+  engineLog->info("Program terminated.");
+  spdlog::shutdown();
+}
 
 // Static Methods
 Engine *Engine::getInstance() {
@@ -43,7 +52,7 @@ void Engine::initEverything() {
   setOpenGLAttributes();
 
   m_Running = initSDL() && initWindow() && initOpenGLContext() && loadGLAD() &&
-              initImGUIWindow() && initBulletPhysics();
+              initUI() && initBulletPhysics();
 
   spdlog::info("[Engine] Initializing openGL Viewport...");
   initGLViewPort();
@@ -119,18 +128,17 @@ bool Engine::loadGLAD() {
   return true;
 }
 
-bool Engine::initImGUIWindow() {
-  ImGUIWindow *imguiWindow = ImGUIWindow::getInstance();
-  bool initSuccess = imguiWindow->init(m_Window, m_GLContext);
+bool Engine::initUI() {
+  bool initSuccess = ui->init(m_Window, m_GLContext);
   if (!initSuccess) {
-    spdlog::warn("[Engine] Failed to initialize ImGUIWindow.");
+    spdlog::warn("[Engine] Failed to initialize UI.");
     return false;
   }
   return true;
 }
 
 bool Engine::initBulletPhysics() {
-  if (!Physics::getInstance()->init()) {
+  if (!physics->init()) {
     return false;
     spdlog::info("[Engine] Bullet Physics failed to initialize.");
   }
@@ -159,7 +167,7 @@ void Engine::handleInput() {
         (event.type == SDL_WINDOWEVENT &&
          event.window.event == SDL_WINDOWEVENT_CLOSE &&
          event.window.windowID == SDL_GetWindowID(m_Window))) {
-      spdlog::info("Detected window close!");
+      spdlog::info("[Engine] Detected window close!");
       m_Running = false;
       return;
     }
@@ -185,14 +193,14 @@ void Engine::handleInput() {
 
 void Engine::update() {
   calculateDeltaTime();
-  Physics::getInstance()->dynamicsWorld->stepSimulation(m_DeltaTime, 10);
+  physics->dynamicsWorld->stepSimulation(m_DeltaTime, 10);
 }
 
 void Engine::render() {
   glClearColor(1.0, 1.0, 1.0, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-  ImGUIWindow::getInstance()->render();
+  ui->render();
   SDL_GL_SwapWindow(m_Window);
 }
 
@@ -207,13 +215,11 @@ void Engine::calculateDeltaTime() {
 }
 
 void Engine::free() {
-  spdlog::info("Destroying engine resources...");
-  Physics::getInstance()->free();
-  ImGUIWindow::getInstance()->free();
+  spdlog::info("[Engine] Destroying engine resources...");
+  physics->free();
+  ui->free();
   SDL_DestroyWindow(m_Window);
   SDL_GL_DeleteContext(m_GLContext);
   SDL_Quit();
-  spdlog::info("Engine resources destroyed successfully.");
-  spdlog::info("Shutting down spdlog...");
-  spdlog::shutdown();
+  spdlog::info("[Engine] Engine resources destroyed successfully.");
 }

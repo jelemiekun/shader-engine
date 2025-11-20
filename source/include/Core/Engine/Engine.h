@@ -37,7 +37,7 @@ private:
   bool initWindow();
   bool initOpenGLContext();
   bool loadGLAD();
-  bool initImGUIWindow();
+  bool initUI();
   bool initBulletPhysics();
   void initGLViewPort();
 

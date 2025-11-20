@@ -2,17 +2,17 @@
 #include <SDL.h>
 #include <glad/glad.h>
 
-class ImGUIWindow {
+class UI {
 private:
-  ImGUIWindow();
+  UI();
 
 public:
-  ImGUIWindow(const ImGUIWindow &) = delete;
-  ImGUIWindow &operator=(const ImGUIWindow &) = delete;
-  ImGUIWindow(ImGUIWindow &&) = delete;
-  ImGUIWindow &operator=(ImGUIWindow &&) = delete;
+  UI(const UI &) = delete;
+  UI &operator=(const UI &) = delete;
+  UI(UI &&) = delete;
+  UI &operator=(UI &&) = delete;
 
-  static ImGUIWindow *getInstance();
+  static UI *getInstance();
 
   static bool willResetLayout;
 

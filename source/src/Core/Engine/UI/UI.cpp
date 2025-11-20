@@ -1,4 +1,4 @@
-#include "ImGUIWindow.h"
+#include "UI.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "imgui.h"
@@ -10,16 +10,16 @@
 
 const static constexpr char *OPENGL_VERSION = "#version 410";
 
-bool ImGUIWindow::willResetLayout = true;
+bool UI::willResetLayout = true;
 
-ImGUIWindow::ImGUIWindow() {}
+UI::UI() {}
 
-ImGUIWindow *ImGUIWindow::getInstance() {
-  static ImGUIWindow instance;
+UI *UI::getInstance() {
+  static UI instance;
   return &instance;
 }
 
-bool ImGUIWindow::init(SDL_Window *window, SDL_GLContext glContext) const {
+bool UI::init(SDL_Window *window, SDL_GLContext glContext) const {
   spdlog::info("ImGui initializing...");
   bool initSuccess = false;
 
@@ -64,7 +64,7 @@ bool ImGUIWindow::init(SDL_Window *window, SDL_GLContext glContext) const {
   return initSuccess;
 }
 
-void ImGUIWindow::createRootDockSpace() {
+void UI::createRootDockSpace() {
   ImGuiIO &io = ImGui::GetIO();
   IM_ASSERT(io.ConfigFlags & ImGuiConfigFlags_DockingEnable);
 
@@ -123,7 +123,7 @@ void ImGUIWindow::createRootDockSpace() {
   ImGui::End();
 }
 
-void ImGUIWindow::resetLayout() {
+void UI::resetLayout() {
   ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 
   ImGui::DockBuilderRemoveNode(dockspace_id); // clear any existing layout
@@ -144,7 +144,7 @@ void ImGUIWindow::resetLayout() {
   ImGui::DockBuilderFinish(dockspace_id);
 }
 
-void ImGUIWindow::render() {
+void UI::render() {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
@@ -185,7 +185,7 @@ void ImGUIWindow::render() {
   }
 }
 
-void ImGUIWindow::free() {
+void UI::free() {
   spdlog::info("Destroying ImGUI resources...");
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();

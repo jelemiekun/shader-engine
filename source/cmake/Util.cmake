@@ -63,9 +63,9 @@ function(create_source_libraries)
     src/Core/Engine/Mesh
     src/Core/Engine/Model
     src/Core/Engine/Physics
-    src/Core/Engine/ImGUIWindow
     src/Core/Engine/Shader
     src/Core/Engine/Texture2D
+    src/Core/Engine/UI
     src/Core/Engine/VertexArray
     src/Core/Engine/VertexBuffer
     src/Vendors/stb_image
@@ -96,14 +96,16 @@ function(link_all)
   message(STATUS "Bullet libraries: ${BULLET_LIBRARIES}")
 
   target_link_libraries(ShaderExe PUBLIC spdlog::spdlog SDL2::SDL2 Engine)
-  target_link_libraries(Engine PUBLIC SDL2::SDL2 glad ImGUIWindow Physics)
+
+  target_link_libraries(Engine PUBLIC SDL2::SDL2 glad UI Physics)
+
   target_link_libraries(VertexBuffer PUBLIC glad)
   target_link_libraries(Shader PUBLIC glad glm::glm)
   target_link_libraries(ElementBuffer PUBLIC glad)
   target_link_libraries(VertexArray PUBLIC glad)
   target_link_libraries(Texture2D PUBLIC stb_image glad glm::glm)
   target_link_libraries(Camera PUBLIC SDL2::SDL2 glad glm::glm)
-  target_link_libraries(ImGUIWindow PUBLIC SDL2::SDL2 glad imgui nfd)
+  target_link_libraries(UI PUBLIC SDL2::SDL2 glad imgui nfd)
   target_link_libraries(Mesh PUBLIC assimp::assimp glm::glm glad Shader )
   target_link_libraries(Model PUBLIC glm::glm glad stb_image assimp::assimp Mesh)
   target_link_libraries(imgui PUBLIC SDL2::SDL2)

@@ -20,6 +20,7 @@ This project was inspired by focusing on shader programming, hence the project n
     - RENDER_MODE_LIT: textured + lighting
 - Upload models
   - Perform transformation
+- Separate Window Class
 
 ## Built With
 
