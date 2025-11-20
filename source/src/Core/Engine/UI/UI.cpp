@@ -12,6 +12,7 @@ const static constexpr char *OPENGL_VERSION = "#version 410";
 
 bool UI::willResetLayout = true;
 const char *UI::rootDockSpace = "RootDockSpace";
+UIVisibility UI::uiVisibility;
 
 UI::UI() {}
 
@@ -101,6 +102,7 @@ void UI::createRootDockSpace() {
   if (willResetLayout) {
     willResetLayout = false;
     resetLayout();
+    resetBitFieldsValues();
   }
 
   ImGui::End();
@@ -158,6 +160,7 @@ void UI::createMainMenuBar() {
 }
 
 void UI::resetLayout() {
+  Logger::ui->info("Resetting layout...");
   ImGuiID dockspace_id = ImGui::GetID(rootDockSpace);
 
   ImGui::DockBuilderRemoveNode(dockspace_id); // clear any existing layout
@@ -176,6 +179,13 @@ void UI::resetLayout() {
   ImGui::DockBuilderDockWindow("Right Panel", dock_right_id);
 
   ImGui::DockBuilderFinish(dockspace_id);
+}
+
+void UI::resetBitFieldsValues() {
+  Logger::ui->info("Resetting UI visibility bit fields values...");
+  uiVisibility.left_panel = 1;
+  uiVisibility.render_buffer = 1;
+  uiVisibility.right_panel = 1;
 }
 
 void UI::render() {
@@ -203,23 +213,37 @@ void UI::render() {
 }
 
 void UI::renderImGuiWindows() {
-  ImGui::Begin("Left Panel");
-  ImGui::Text("Reset Layout");
-  static int b_ResetLayout = 0;
-  if (ImGui::Button("Reset"))
-    b_ResetLayout++;
-  if (b_ResetLayout & 1) {
-    willResetLayout = true;
-    b_ResetLayout++;
+  static bool open = false;
+
+  if (uiVisibility.left_panel) {
+    open = uiVisibility.left_panel;
+    ImGui::Begin("Left Panel", &open);
+    ImGui::Text("Reset Layout");
+    static int b_ResetLayout = 0;
+    if (ImGui::Button("Reset"))
+      b_ResetLayout++;
+    if (b_ResetLayout & 1) {
+      willResetLayout = true;
+      b_ResetLayout++;
+    }
+    ImGui::End();
+    uiVisibility.left_panel = open;
   }
-  ImGui::End();
 
-  ImGui::Begin("Right Panel");
-  ImGui::Text("Meow!");
-  ImGui::End();
+  if (uiVisibility.render_buffer) {
+    open = uiVisibility.render_buffer;
+    ImGui::Begin("Render Buffer", &open);
+    ImGui::End();
+    uiVisibility.render_buffer = open;
+  }
 
-  ImGui::Begin("Render Buffer");
-  ImGui::End();
+  if (uiVisibility.right_panel) {
+    open = uiVisibility.right_panel;
+    ImGui::Begin("Right Panel", &open);
+    ImGui::Text("Meow!");
+    ImGui::End();
+    uiVisibility.right_panel = open;
+  }
 }
 
 void UI::free() {

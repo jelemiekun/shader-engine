@@ -1,4 +1,5 @@
 #pragma once
+#include "UIVisibility.h"
 #include <SDL.h>
 #include <glad/glad.h>
 
@@ -16,6 +17,7 @@ public:
 
   static bool willResetLayout;
   static const char *rootDockSpace;
+  static UIVisibility uiVisibility;
 
   bool init(SDL_Window *window, SDL_GLContext glContext) const;
   bool initImGuiWindowRenderSpace(const int &width, const int &height);
@@ -24,6 +26,7 @@ public:
   void createRootDockSpace();
   void createMainMenuBar();
   void resetLayout();
+  void resetBitFieldsValues();
   void render();
   void renderImGuiWindows();
   void free();
