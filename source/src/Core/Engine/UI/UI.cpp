@@ -71,32 +71,59 @@ bool UI::init(SDL_Window *window, SDL_GLContext glContext) const {
 }
 
 void UI::createRootDockSpace() {
+  // Get the ImGui IO object and assert that docking is enabled
   ImGuiIO &io = ImGui::GetIO();
   IM_ASSERT(io.ConfigFlags & ImGuiConfigFlags_DockingEnable);
 
+  // Get the main viewport (typically the full SDL/OpenGL window)
   ImGuiViewport *viewport = ImGui::GetMainViewport();
 
+  // Ensure viewport is valid
   if (!viewport) {
     Logger::ui->error("No viewport was obtained.");
     return;
   }
 
+  // Set up the next window (the next ImGui::Begin which we will be our main
+  // dock space) to cover the entire viewport This ensures our dockspace fills
+  // the whole screen
   ImGui::SetNextWindowPos(viewport->Pos);
   ImGui::SetNextWindowSize(viewport->Size);
   ImGui::SetNextWindowViewport(viewport->ID);
 
+  // Window flags for the host window:
+  // - No title bar, collapse, resize, or move
+  // - Doesn't steal focus or allow docking itself
   static ImGuiWindowFlags window_flags =
       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
       ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
       ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
       ImGuiWindowFlags_MenuBar;
 
+  // - PassthruCentralNode allows seeing background through the central node
   static ImGuiDockNodeFlags dockspace_flags =
       ImGuiDockNodeFlags_PassthruCentralNode;
 
+  // Remove next window (the next ImGui::Begin which we will be our main dock
+  // space) rounding and border for a clean full-screen look
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+  // Begin the host window that will contain the dockspace
+  // This window covers the entire viewport and acts as the “container” for
+  // docking other windows
   ImGui::Begin("RootDoctSpaceWindow", nullptr, window_flags);
 
+  // Pop the two style vars we pushed so the next ImGui::Begin will have default
+  // style
+  ImGui::PopStyleVar(2);
+
+  // Create a unique ID for the dockspace
+  // What actually allows **other ImGui windows to dock into this area**.
   static ImGuiID dockspace_id = ImGui::GetID(rootDockSpace);
+
+  // Create the actual dockspace inside the host window
+  // Other ImGui windows can now dock into this area
   ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
   if (willResetLayout) {
@@ -111,6 +138,7 @@ void UI::createRootDockSpace() {
 void UI::createMainMenuBar() {
   // TODO: Separate source file for all menu functions; So when shortcut is
   // invoked, it'll directly call the function
+  // TODO: Separate shortcut strings
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("Project")) {
       if (ImGui::MenuItem("Open Project...", "Ctrl+O", false, false)) {
@@ -151,7 +179,7 @@ void UI::createMainMenuBar() {
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("View")) {
-      if (ImGui::MenuItem("Reset Layout", "Ctrl+Shift+R", false, false)) {
+      if (ImGui::MenuItem("Reset Layout", "Ctrl+F5", false, false)) {
       }
       ImGui::EndMenu();
     }
@@ -170,13 +198,17 @@ void UI::resetLayout() {
 
   ImGuiID dock_main_id = dockspace_id;
   ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(
-      dock_main_id, ImGuiDir_Left, 0.25f, nullptr, &dock_main_id);
+      dock_main_id, ImGuiDir_Left, 0.20f, nullptr, &dock_main_id);
   ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(
       dock_main_id, ImGuiDir_Right, 0.25f, nullptr, &dock_main_id);
+  ImGuiID dock_bottom_id = ImGui::DockBuilderSplitNode(
+      dock_main_id, ImGuiDir_Down, 0.25f, nullptr, &dock_main_id);
 
   ImGui::DockBuilderDockWindow("Render Buffer", dock_main_id);
   ImGui::DockBuilderDockWindow("Left Panel", dock_left_id);
   ImGui::DockBuilderDockWindow("Right Panel", dock_right_id);
+  ImGui::DockBuilderDockWindow("Right Panel 2", dock_right_id);
+  ImGui::DockBuilderDockWindow("Log", dock_bottom_id);
 
   ImGui::DockBuilderFinish(dockspace_id);
 }
@@ -186,6 +218,8 @@ void UI::resetBitFieldsValues() {
   uiVisibility.left_panel = 1;
   uiVisibility.render_buffer = 1;
   uiVisibility.right_panel = 1;
+  uiVisibility.right_panel_2 = 1;
+  uiVisibility.bottom_panel = 1;
 }
 
 void UI::render() {
@@ -243,6 +277,22 @@ void UI::renderImGuiWindows() {
     ImGui::Text("Meow!");
     ImGui::End();
     uiVisibility.right_panel = open;
+  }
+
+  if (uiVisibility.right_panel_2) {
+    open = uiVisibility.right_panel_2;
+    ImGui::Begin("Right Panel 2", &open);
+    ImGui::Text("...........");
+    ImGui::End();
+    uiVisibility.right_panel_2 = open;
+  }
+
+  if (uiVisibility.bottom_panel) {
+    open = uiVisibility.bottom_panel;
+    ImGui::Begin("Log", &open);
+    ImGui::Text("Event logs will show here...");
+    ImGui::End();
+    uiVisibility.bottom_panel = open;
   }
 }
 
