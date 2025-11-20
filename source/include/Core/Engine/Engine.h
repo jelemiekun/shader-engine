@@ -1,6 +1,5 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_video.h>
 
 class Engine {
   // Constructors & Destructors

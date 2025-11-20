@@ -11,6 +11,7 @@
 const static constexpr char *OPENGL_VERSION = "#version 410";
 
 bool UI::willResetLayout = true;
+const char *UI::rootDockSpace = "RootDockSpace";
 
 UI::UI() {}
 
@@ -74,30 +75,45 @@ void UI::createRootDockSpace() {
 
   ImGuiViewport *viewport = ImGui::GetMainViewport();
 
+  if (!viewport) {
+    Logger::ui->error("No viewport was obtained.");
+    return;
+  }
+
   ImGui::SetNextWindowPos(viewport->Pos);
   ImGui::SetNextWindowSize(viewport->Size);
   ImGui::SetNextWindowViewport(viewport->ID);
 
-  ImGuiWindowFlags window_flags =
+  static ImGuiWindowFlags window_flags =
       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
       ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
       ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
       ImGuiWindowFlags_MenuBar;
 
-  ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+  static ImGuiDockNodeFlags dockspace_flags =
+      ImGuiDockNodeFlags_PassthruCentralNode;
 
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+  ImGui::Begin("RootDoctSpaceWindow", nullptr, window_flags);
 
-  ImGui::Begin("MainDockSpaceWindow", nullptr, window_flags);
-  ImGui::PopStyleVar(2);
+  static ImGuiID dockspace_id = ImGui::GetID(rootDockSpace);
+  ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 
+  if (willResetLayout) {
+    willResetLayout = false;
+    resetLayout();
+  }
+
+  ImGui::End();
+}
+
+void UI::createMainMenuBar() {
+  // TODO: Separate source file for all menu functions; So when shortcut is
+  // invoked, it'll directly call the function
   if (ImGui::BeginMainMenuBar()) {
-    if (ImGui::BeginMenu("File")) {
-      if (ImGui::MenuItem("New file")) {
-        Logger::ui->info("Creating new file...");
-      }
-      if (ImGui::MenuItem("Open File", "Ctrl+O", false, true)) {
+    if (ImGui::BeginMenu("Project")) {
+      if (ImGui::MenuItem("Open Project...", "Ctrl+O", false, false)) {
+        // TODO: read project's metadata
+        Logger::ui->info("Opening a project...");
         nfdchar_t *outPath = nullptr;
         nfdresult_t result = NFD_OpenDialog(nullptr, nullptr, &outPath);
 
@@ -111,24 +127,38 @@ void UI::createRootDockSpace() {
           Logger::ui->warn("NFD Error: {}", NFD_GetError());
         }
       }
+      if (ImGui::MenuItem("Save...", "Ctrl+S", false, false)) {
+        Logger::ui->info("Saving project...");
+        // TODO: save project's metadata
+        bool success = false;
+        if (success) {
+          Logger::ui->info("Successfully saved project.");
+        } else {
+          Logger::ui->warn("Failed to save project.");
+        }
+      }
+      if (ImGui::MenuItem("Save as...", "Ctrl+Shift+S", false, false)) {
+      }
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Edit")) {
+      if (ImGui::MenuItem("Undo", "Ctrl+Z", false, false)) {
+      }
+      if (ImGui::MenuItem("Redo", "Ctrl+Y", false, false)) {
+      }
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("View")) {
+      if (ImGui::MenuItem("Reset Layout", "Ctrl+Shift+R", false, false)) {
+      }
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
   }
-
-  ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-  ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-
-  if (willResetLayout) {
-    willResetLayout = false;
-    resetLayout();
-  }
-
-  ImGui::End();
 }
 
 void UI::resetLayout() {
-  ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+  ImGuiID dockspace_id = ImGui::GetID(rootDockSpace);
 
   ImGui::DockBuilderRemoveNode(dockspace_id); // clear any existing layout
   ImGui::DockBuilderAddNode(
@@ -153,12 +183,26 @@ void UI::render() {
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
   createRootDockSpace();
+  createMainMenuBar();
 
   ImGuiIO &io = ImGui::GetIO();
 
   // ImGui::ShowDemoWindow();
+  renderImGuiWindows();
 
-  // Your GUI code
+  ImGui::Render();
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+  if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+    SDL_Window *backup_current_window = SDL_GL_GetCurrentWindow();
+    SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+    SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+  }
+}
+
+void UI::renderImGuiWindows() {
   ImGui::Begin("Left Panel");
   ImGui::Text("Reset Layout");
   static int b_ResetLayout = 0;
@@ -176,17 +220,6 @@ void UI::render() {
 
   ImGui::Begin("Render Buffer");
   ImGui::End();
-
-  ImGui::Render();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-  if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-    SDL_Window *backup_current_window = SDL_GL_GetCurrentWindow();
-    SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-    ImGui::UpdatePlatformWindows();
-    ImGui::RenderPlatformWindowsDefault();
-    SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
-  }
 }
 
 void UI::free() {

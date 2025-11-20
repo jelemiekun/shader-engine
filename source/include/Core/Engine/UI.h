@@ -15,13 +15,16 @@ public:
   static UI *getInstance();
 
   static bool willResetLayout;
+  static const char *rootDockSpace;
 
   bool init(SDL_Window *window, SDL_GLContext glContext) const;
   bool initImGuiWindowRenderSpace(const int &width, const int &height);
   void resizeFramebuffer(const int &width, const int &height);
 
   void createRootDockSpace();
+  void createMainMenuBar();
   void resetLayout();
   void render();
+  void renderImGuiWindows();
   void free();
 };
