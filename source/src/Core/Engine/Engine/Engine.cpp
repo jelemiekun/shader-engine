@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Camera.h"
+#include "Logger.h"
 #include "Physics.h"
 #include "UI.h"
 #include "backends/imgui_impl_sdl2.h"
@@ -7,22 +8,18 @@
 #include <SDL_events.h>
 #include <SDL_video.h>
 #include <glad/glad.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
 
-static auto engineLog = spdlog::stdout_color_mt("Engine");
 static UI *ui = UI::getInstance();
 static Physics *physics = Physics::getInstance();
 
 // Constructors and Destructors
 Engine::Engine() : m_Window(nullptr) {
-  spdlog::info("[Engine] Engine instance created.");
+  Logger::engine->info("Engine instance created.");
 }
 
 Engine::~Engine() {
-  engineLog->info("Engine instance destroyed.");
-  engineLog->info("Program terminated.");
-  spdlog::shutdown();
+  Logger::engine->info("Engine instance destroyed.");
+  Logger::engine->info("Program terminated.");
 }
 
 // Static Methods

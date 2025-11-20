@@ -32,6 +32,7 @@ public:
 private:
   // Initializers
   void initEverything();
+  bool initLoggers();
   void setOpenGLAttributes();
   bool initSDL();
   bool initWindow();
