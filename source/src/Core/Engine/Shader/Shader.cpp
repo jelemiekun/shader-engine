@@ -23,7 +23,7 @@ void Shader::init(const char *sourcePath) {
     Logger::shader->error("Failed to create shader.");
     return;
   } else {
-    Logger::shader->info("Vertex and Fragment shader created successfully.");
+    Logger::shader->info("Successfully creted vertex and fragment shader.");
   }
 
   createProgram(vertexShader, fragmentShader);
@@ -64,7 +64,7 @@ GLuint Shader::compileShader(GLuint shader_Type, const char *source) {
   GLuint shader = glCreateShader(shader_Type);
 
   if (shader == 0) {
-    Logger::shader->error("Failed to create {} Shader.",
+    Logger::shader->error("Failed to create {} shader.",
                           (shader_Type == GL_VERTEX_SHADER) ? "Vertex"
                                                             : "Fragment");
     return 0;
@@ -78,13 +78,12 @@ GLuint Shader::compileShader(GLuint shader_Type, const char *source) {
   std::string shaderTypeString =
       (shader_Type == GL_VERTEX_SHADER) ? "Vertex" : "Fragment";
   if (shaderSuccess) {
-    Logger::shader->info("{} Shader compile success.", shaderTypeString);
+    Logger::shader->info("Successfully compiled {} shader.", shaderTypeString);
     return shader;
   } else {
     char log[512];
     glGetShaderInfoLog(shader, 512, NULL, log);
-    Logger::shader->warn("{} Shader failed to compile: {}", shaderTypeString,
-                         log);
+    Logger::shader->warn("Failed to compile {} shader.", shaderTypeString, log);
     return 0;
   }
 }
@@ -106,12 +105,12 @@ void Shader::validateProgram() {
   int shaderProgramSuccess;
   glGetProgramiv(ID, GL_LINK_STATUS, &shaderProgramSuccess);
   if (shaderProgramSuccess) {
-    Logger::shader->info("Shader program linking success.");
+    Logger::shader->info("Successfully linked shader program.");
     usable = true;
   } else {
     char log[512];
     glGetProgramInfoLog(ID, 512, NULL, log);
-    Logger::shader->warn("Shader program failed to link: {}", log);
+    Logger::shader->warn("Failed to link shaderp program: {}", log);
   }
 }
 
@@ -122,7 +121,7 @@ int Shader::getUniformLocation(const std::string &name) {
   int location = glGetUniformLocation(ID, name.c_str());
 
   if (location == -1)
-    Logger::shader->warn("Warning: Uniform {} doesn't exist!", name);
+    Logger::shader->warn("Uniform {} doesn't exist!", name);
 
   uniformLocationCache[name] = location;
   return location;
@@ -178,6 +177,6 @@ void Shader::free() {
     ID = 0;
     uniformLocationCache.clear();
   } else {
-    Logger::shader->debug("Shader::clean() called but no program to delete.");
+    Logger::shader->debug("clean(): called but no program to delete.");
   }
 }

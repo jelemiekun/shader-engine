@@ -39,7 +39,7 @@ private:
   bool initOpenGLContext();
   bool loadGLAD();
   bool initUI();
-  bool initBulletPhysics();
+  bool initPhysics();
   void initGLViewPort();
 
   // Engine Loop

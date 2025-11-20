@@ -1,7 +1,5 @@
 #pragma once
-#include <assimp/Importer.hpp>
 #include <glm/glm.hpp>
-#include <string>
 #include <vector>
 
 #include "Shader.h"

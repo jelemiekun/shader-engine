@@ -1,4 +1,5 @@
 #include "ElementBuffer.h"
+#include <assimp/Importer.hpp>
 
 ElementBuffer::ElementBuffer(const GLuint *data, GLuint pCount)
     : count(pCount) {

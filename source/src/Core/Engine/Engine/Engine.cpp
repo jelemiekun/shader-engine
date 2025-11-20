@@ -1,5 +1,4 @@
 #include "Engine.h"
-#include "Camera.h"
 #include "Logger.h"
 #include "Physics.h"
 #include "UI.h"
@@ -52,9 +51,8 @@ void Engine::initEverything() {
   setOpenGLAttributes();
 
   m_Running = initSDL() && initWindow() && initOpenGLContext() && loadGLAD() &&
-              initUI() && initBulletPhysics();
+              initUI() && initPhysics();
 
-  Logger::engine->info("Initializing OpenGL viewport...");
   initGLViewPort();
 }
 
@@ -70,7 +68,7 @@ void Engine::setOpenGLAttributes() {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  Logger::engine->info("OpenGL attributes setting done.");
+  Logger::engine->info("Successfully set OpenGL attributes.");
 }
 
 bool Engine::initSDL() {
@@ -88,16 +86,19 @@ bool Engine::initWindow() {
   int initWindowWidth = 1600;
   int initWindowHeight = 920;
 
+  Logger::engine->info("Initializing window with dimension {}x{}...",
+                       initWindowWidth, initWindowHeight);
+
   m_Window = SDL_CreateWindow("Shader Game Engine", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, initWindowWidth,
                               initWindowHeight,
                               SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
   if (!m_Window) {
-    Logger::engine->error("Failed to create window: {}", SDL_GetError());
+    Logger::engine->error("Failed to initialize window: {}", SDL_GetError());
     return false;
   } else {
-    Logger::engine->info("Successfully created window.");
+    Logger::engine->info("Successfully initialized window.");
 
     m_WindowWidth = initWindowWidth;
     m_WindowHeight = initWindowHeight;
@@ -106,9 +107,11 @@ bool Engine::initWindow() {
 }
 
 bool Engine::initOpenGLContext() {
+  Logger::engine->info("Initializing OpenGL context...");
+
   m_GLContext = SDL_GL_CreateContext(m_Window);
   if (!m_GLContext) {
-    Logger::engine->error("Failed to create SDL_GL context: {}",
+    Logger::engine->error("Failed to initialize SDL_GL context: {}",
                           SDL_GetError());
     return false;
   }
@@ -116,11 +119,13 @@ bool Engine::initOpenGLContext() {
   SDL_GL_SetSwapInterval(
       0); // Disable VSync: allows rendering at uncapped FPS instead of syncing
           // to monitor's refresh rate (e.g., 60Hz)
-  Logger::engine->info("Successfully created SDL_GL context.");
+  Logger::engine->info("Successfully initialized SDL_GL context.");
   return true;
 }
 
 bool Engine::loadGLAD() {
+  Logger::engine->info("Loading GLAD...");
+
   if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
     Logger::engine->error("Failed to initialize GLAD.");
     return false;
@@ -130,6 +135,8 @@ bool Engine::loadGLAD() {
 }
 
 bool Engine::initUI() {
+  Logger::engine->info("Initializing UI...");
+
   bool initSuccess = ui->init(m_Window, m_GLContext);
   if (!initSuccess) {
     Logger::engine->warn("Failed to initialize UI.");
@@ -140,18 +147,22 @@ bool Engine::initUI() {
   return true;
 }
 
-bool Engine::initBulletPhysics() {
+bool Engine::initPhysics() {
+  Logger::engine->info("Initializing Physics...");
+
   if (!physics->init()) {
     return false;
-    Logger::engine->info("Failed to initialize Bullet Physics.");
+    Logger::engine->info("Failed to initialize Physics.");
   }
 
-  Logger::engine->info("Successfully initialized Bullet Physics.");
+  Logger::engine->info("Successfully initialized Physics.");
   return true;
 }
 
 void Engine::initGLViewPort() {
+  Logger::engine->info("Initializing OpenGL viewport...");
   glViewport(0, 0, m_WindowWidth, m_WindowHeight);
+  Logger::engine->info("Successfully initialized OpenGL viewport.");
 }
 
 void Engine::gameLoop() {
@@ -225,5 +236,5 @@ void Engine::free() {
   SDL_DestroyWindow(m_Window);
   SDL_GL_DeleteContext(m_GLContext);
   SDL_Quit();
-  Logger::engine->info("Engine resources destroyed successfully.");
+  Logger::engine->info("Successfully destroyed Shader game engine resources.");
 }

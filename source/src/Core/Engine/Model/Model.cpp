@@ -46,7 +46,7 @@ void Model::loadModel(std::string const &path) {
   directory = path.substr(0, path.find_last_of('/'));
   processNode(scene->mRootNode, scene, glm::mat4(1.0f));
 
-  Logger::model->info("Model loaded successfully: {}", path);
+  Logger::model->info("Successfully loaded model: {}", path);
 }
 
 void Model::processNode(aiNode *node, const aiScene *scene,
@@ -178,7 +178,6 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat,
   for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
     aiString str;
     mat->GetTexture(type, i, &str);
-    Logger::model->info("Texture path: {}", str.C_Str());
 
     bool skip = false;
     for (unsigned int j = 0; j < textures_loaded.size(); j++) {

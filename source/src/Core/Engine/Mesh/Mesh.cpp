@@ -22,14 +22,14 @@ void Mesh::setupMesh() {
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
                  vertices.data(), GL_STATIC_DRAW);
   else
-    Logger::mesh->warn("Mesh::setupMesh() - No vertex data found!");
+    Logger::mesh->warn("setupMesh(): No vertex data found!");
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   if (!indices.empty())
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
                  indices.data(), GL_STATIC_DRAW);
   else
-    Logger::mesh->warn("Mesh::setupMesh() - No index data found!");
+    Logger::mesh->warn("setupMesh(): No index data found!");
 
   // Position
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);

@@ -100,7 +100,6 @@ function(link_all)
 
   target_link_libraries(Engine PUBLIC SDL2::SDL2 glad UI Physics Logger)
 
-  # TODO: remove multiple linkings
   target_link_libraries(Camera PUBLIC SDL2::SDL2 glad glm::glm)
   target_link_libraries(imgui PUBLIC SDL2::SDL2)
   target_link_libraries(ElementBuffer PUBLIC glad)

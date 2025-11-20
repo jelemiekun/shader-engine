@@ -54,7 +54,7 @@ bool Physics::init(const btVector3 &gravity) {
     return false;
   }
 
-  Logger::physics->info("Bullet Physics initiated successfully.");
+  Logger::physics->info("Successfully initialized Physics.");
   return true;
 }
 
@@ -66,7 +66,7 @@ void Physics::addPrimitiveRigidBody(PrimitiveRigidBody &rigidBody) {
   createRigidBody(rigidBody);
 
   if (rigidBody.initialized) {
-    Logger::physics->info("Rigid body initialized successfully.");
+    Logger::physics->info("Successfully initialized Rigid body.");
     Logger::physics->trace("Adding rigid body to rigidBodies vector...");
     primitiveRigidBodies.push_back(rigidBody);
   }
@@ -93,13 +93,13 @@ void Physics::addConvexHullRigidBody(ConvexHullRigidBody &rigidBody,
 btVector3 Physics::getGravity() const { return dynamicsWorld->getGravity(); }
 
 void Physics::free() {
-  Logger::physics->info("Destroying Bullet physics resources...");
+  Logger::physics->info("Destroying physics resources...");
   delete dynamicsWorld;
   delete solver;
   delete broadphase;
   delete dispatcher;
   delete collisionConfig;
-  Logger::physics->info("Bullet physics resources destroyed sucessfully.");
+  Logger::physics->info("Successfully destroyed physics resources.");
 }
 
 void Physics::createRigidBody(PrimitiveRigidBody &rigidBody) {

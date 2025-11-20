@@ -20,8 +20,8 @@ UI *UI::getInstance() {
 }
 
 bool UI::init(SDL_Window *window, SDL_GLContext glContext) const {
-  Logger::ui->info("ImGui initializing...");
-  bool initSuccess = false;
+  Logger::ui->info("Initializing ImGui...");
+  bool initSuccess = true;
 
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -45,6 +45,7 @@ bool UI::init(SDL_Window *window, SDL_GLContext glContext) const {
   ImGuiStyle &style = ImGui::GetStyle();
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
     style.WindowRounding = 0.0f;
+    // TODO: gawin 'tong alpha value dynamic
     style.Colors[ImGuiCol_WindowBg].w = 0.2f;
   }
 
@@ -54,13 +55,16 @@ bool UI::init(SDL_Window *window, SDL_GLContext glContext) const {
     initSuccess = false;
   }
 
+  Logger::ui->trace("Successfully initialized ImGui SDL2 backend.");
+
   if (!ImGui_ImplOpenGL3_Init(OPENGL_VERSION)) {
     Logger::ui->error("Failed to initialize ImGui OpenGL3 backend.");
     initSuccess = false;
   }
 
-  Logger::ui->info("ImGui initialized successfully.");
-  initSuccess = true;
+  Logger::ui->trace("Successfully initialized ImGUi OpenGL3 backend.");
+
+  Logger::ui->info("Successfully initialized ImGui.");
   return initSuccess;
 }
 
@@ -190,5 +194,5 @@ void UI::free() {
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
-  Logger::ui->info("ImGUI resources destroyed successfully.");
+  Logger::ui->info("Successfully destroyed ImGUI resources.");
 }
