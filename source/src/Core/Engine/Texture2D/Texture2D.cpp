@@ -1,6 +1,6 @@
 #include "Texture2D.h"
+#include "Logger.h"
 #include "glad/glad.h"
-#include "spdlog/spdlog.h"
 #include "stb_image.h"
 
 Texture2D::Texture2D()
@@ -27,13 +27,13 @@ bool Texture2D::load2D(const std::string &path) {
 
   localBuffer = stbi_load(path.c_str(), &width, &height, &bpp, 4);
   if (localBuffer) {
-    spdlog::info("2D Texture loaded: {}", path);
+    Logger::texture2D->info("2D Texture loaded: {}", path);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, localBuffer);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(localBuffer);
   } else {
-    spdlog::warn("Failed to load 2D texture: {}", path);
+    Logger::texture2D->warn("Failed to load 2D texture: {}", path);
     return false;
   }
 
@@ -52,12 +52,12 @@ bool Texture2D::loadCubemap(const std::vector<std::string> &faces) {
   for (unsigned int i = 0; i < faces.size(); i++) {
     unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &bpp, 4);
     if (data) {
-      spdlog::info("Cubemap face loaded: {}", faces[i]);
+      Logger::texture2D->info("Cubemap face loaded: {}", faces[i]);
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA8, width,
                    height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
       stbi_image_free(data);
     } else {
-      spdlog::warn("Failed to load cubemap face: {}", faces[i]);
+      Logger::texture2D->warn("Failed to load cubemap face: {}", faces[i]);
       return false;
     }
   }

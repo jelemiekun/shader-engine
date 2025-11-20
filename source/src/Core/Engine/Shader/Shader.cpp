@@ -1,7 +1,7 @@
 #include "Shader.h"
+#include "Logger.h"
 #include <fstream>
 #include <glm/gtc/type_ptr.hpp>
-#include <spdlog/spdlog.h>
 #include <sstream>
 
 Shader::Shader() : usable(false) {}
@@ -20,10 +20,10 @@ void Shader::init(const char *sourcePath) {
       compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource.c_str());
 
   if (vertexShader == 0 || fragmentShader == 0) {
-    spdlog::error("Failed to create shader.");
+    Logger::shader->error("Failed to create shader.");
     return;
   } else {
-    spdlog::info("Vertex and Fragment shader created successfully.");
+    Logger::shader->info("Vertex and Fragment shader created successfully.");
   }
 
   createProgram(vertexShader, fragmentShader);
@@ -33,7 +33,7 @@ std::string Shader::parseShaderSource(const char *sourcePath,
                                       Shader_Type type) {
   std::ifstream stream(sourcePath);
   if (!stream) {
-    spdlog::error("Failed to open shader file: {}", sourcePath);
+    Logger::shader->error("Failed to open shader file: {}", sourcePath);
     return "";
   }
 
@@ -64,8 +64,9 @@ GLuint Shader::compileShader(GLuint shader_Type, const char *source) {
   GLuint shader = glCreateShader(shader_Type);
 
   if (shader == 0) {
-    spdlog::error("Failed to create {} Shader.",
-                  (shader_Type == GL_VERTEX_SHADER) ? "Vertex" : "Fragment");
+    Logger::shader->error("Failed to create {} Shader.",
+                          (shader_Type == GL_VERTEX_SHADER) ? "Vertex"
+                                                            : "Fragment");
     return 0;
   }
 
@@ -77,12 +78,13 @@ GLuint Shader::compileShader(GLuint shader_Type, const char *source) {
   std::string shaderTypeString =
       (shader_Type == GL_VERTEX_SHADER) ? "Vertex" : "Fragment";
   if (shaderSuccess) {
-    spdlog::info("{} Shader compile success.", shaderTypeString);
+    Logger::shader->info("{} Shader compile success.", shaderTypeString);
     return shader;
   } else {
     char log[512];
     glGetShaderInfoLog(shader, 512, NULL, log);
-    spdlog::warn("{} Shader failed to compile: {}", shaderTypeString, log);
+    Logger::shader->warn("{} Shader failed to compile: {}", shaderTypeString,
+                         log);
     return 0;
   }
 }
@@ -104,12 +106,12 @@ void Shader::validateProgram() {
   int shaderProgramSuccess;
   glGetProgramiv(ID, GL_LINK_STATUS, &shaderProgramSuccess);
   if (shaderProgramSuccess) {
-    spdlog::info("Shader program linking success.");
+    Logger::shader->info("Shader program linking success.");
     usable = true;
   } else {
     char log[512];
     glGetProgramInfoLog(ID, 512, NULL, log);
-    spdlog::warn("Shader program failed to link: {}", log);
+    Logger::shader->warn("Shader program failed to link: {}", log);
   }
 }
 
@@ -120,7 +122,7 @@ int Shader::getUniformLocation(const std::string &name) {
   int location = glGetUniformLocation(ID, name.c_str());
 
   if (location == -1)
-    spdlog::warn("Warning: Uniform {} doesn't exist!", name);
+    Logger::shader->warn("Warning: Uniform {} doesn't exist!", name);
 
   uniformLocationCache[name] = location;
   return location;
@@ -130,7 +132,7 @@ void Shader::bind() const {
   if (usable)
     glUseProgram(ID);
   else
-    spdlog::warn("Unusable shader program.");
+    Logger::shader->warn("Unusable shader program.");
 
   // TODO: remove after use
   if (!usable) {
@@ -163,19 +165,19 @@ void Shader::setVec3(const std::string &name, const glm::vec3 &value) {
 
 void Shader::free() {
   if (usable) {
-    spdlog::info("Cleaning up shader program (ID: {})", ID);
+    Logger::shader->info("Cleaning up shader program (ID: {})", ID);
     glUseProgram(0);
     glDeleteProgram(ID);
     ID = 0;
     usable = false;
     uniformLocationCache.clear();
   } else if (ID != 0) {
-    spdlog::info("Cleaning up invalid or incomplete shader program (ID: {})",
-                 ID);
+    Logger::shader->info(
+        "Cleaning up invalid or incomplete shader program (ID: {})", ID);
     glDeleteProgram(ID);
     ID = 0;
     uniformLocationCache.clear();
   } else {
-    spdlog::debug("Shader::clean() called but no program to delete.");
+    Logger::shader->debug("Shader::clean() called but no program to delete.");
   }
 }

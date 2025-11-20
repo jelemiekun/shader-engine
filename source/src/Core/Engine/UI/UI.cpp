@@ -1,4 +1,5 @@
 #include "UI.h"
+#include "Logger.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "imgui.h"
@@ -6,7 +7,6 @@
 #include "nfd.h"
 #include <SDL2/SDL.h>
 #include <glad/glad.h>
-#include <spdlog/spdlog.h>
 
 const static constexpr char *OPENGL_VERSION = "#version 410";
 
@@ -20,7 +20,7 @@ UI *UI::getInstance() {
 }
 
 bool UI::init(SDL_Window *window, SDL_GLContext glContext) const {
-  spdlog::info("ImGui initializing...");
+  Logger::ui->info("ImGui initializing...");
   bool initSuccess = false;
 
   IMGUI_CHECKVERSION();
@@ -50,16 +50,16 @@ bool UI::init(SDL_Window *window, SDL_GLContext glContext) const {
 
   // Setup Platform/Renderer backends
   if (!ImGui_ImplSDL2_InitForOpenGL(window, glContext)) {
-    spdlog::error("Failed to initialize ImGui SDL2 backend.");
+    Logger::ui->error("Failed to initialize ImGui SDL2 backend.");
     initSuccess = false;
   }
 
   if (!ImGui_ImplOpenGL3_Init(OPENGL_VERSION)) {
-    spdlog::error("Failed to initialize ImGui OpenGL3 backend.");
+    Logger::ui->error("Failed to initialize ImGui OpenGL3 backend.");
     initSuccess = false;
   }
 
-  spdlog::info("ImGui initialized successfully.");
+  Logger::ui->info("ImGui initialized successfully.");
   initSuccess = true;
   return initSuccess;
 }
@@ -91,7 +91,7 @@ void UI::createRootDockSpace() {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       if (ImGui::MenuItem("New file")) {
-        spdlog::info("Creating new file...");
+        Logger::ui->info("Creating new file...");
       }
       if (ImGui::MenuItem("Open File", "Ctrl+O", false, true)) {
         nfdchar_t *outPath = nullptr;
@@ -100,11 +100,11 @@ void UI::createRootDockSpace() {
         if (result == NFD_OKAY) {
           std::string path(outPath);
           ::free(outPath);
-          spdlog::info("File selected: {}", path);
+          Logger::ui->info("File selected: {}", path);
         } else if (result == NFD_CANCEL) {
-          spdlog::warn("File selection cancelled.");
+          Logger::ui->warn("File selection cancelled.");
         } else {
-          spdlog::warn("NFD Error: {}", NFD_GetError());
+          Logger::ui->warn("NFD Error: {}", NFD_GetError());
         }
       }
       ImGui::EndMenu();
@@ -186,9 +186,9 @@ void UI::render() {
 }
 
 void UI::free() {
-  spdlog::info("Destroying ImGUI resources...");
+  Logger::ui->info("Destroying ImGUI resources...");
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
-  spdlog::info("ImGUI resources destroyed successfully.");
+  Logger::ui->info("ImGUI resources destroyed successfully.");
 }

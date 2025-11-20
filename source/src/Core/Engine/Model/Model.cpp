@@ -1,8 +1,8 @@
 #include "Model.h"
+#include "Logger.h"
 #include "stb_image.h"
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <spdlog/spdlog.h>
 
 static unsigned int TextureFromFile(const char *path,
                                     const std::string &directory,
@@ -39,14 +39,14 @@ void Model::loadModel(std::string const &path) {
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE ||
       !scene->mRootNode) {
-    spdlog::error("Error: ASSIMP::{}", importer.GetErrorString());
+    Logger::model->error("Error: ASSIMP::{}", importer.GetErrorString());
     return;
   }
 
   directory = path.substr(0, path.find_last_of('/'));
   processNode(scene->mRootNode, scene, glm::mat4(1.0f));
 
-  spdlog::info("Model loaded successfully: {}", path);
+  Logger::model->info("Model loaded successfully: {}", path);
 }
 
 void Model::processNode(aiNode *node, const aiScene *scene,
@@ -178,7 +178,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial *mat,
   for (unsigned int i = 0; i < mat->GetTextureCount(type); i++) {
     aiString str;
     mat->GetTexture(type, i, &str);
-    spdlog::info("Texture path: {}", str.C_Str());
+    Logger::model->info("Texture path: {}", str.C_Str());
 
     bool skip = false;
     for (unsigned int j = 0; j < textures_loaded.size(); j++) {
@@ -262,11 +262,11 @@ static unsigned int TextureFromFile(const char *path,
 
           stbi_image_free(data);
         } else {
-          spdlog::error("Failed to load embedded texture from memory: {}",
-                        path);
+          Logger::model->error(
+              "Failed to load embedded texture from memory: {}", path);
         }
       } else {
-        spdlog::warn(
+        Logger::model->warn(
             "Uncompressed embedded texture not supported (height > 0)");
       }
     }
@@ -294,7 +294,7 @@ static unsigned int TextureFromFile(const char *path,
 
       stbi_image_free(data);
     } else {
-      spdlog::error("Texture failed to load at path: {}", filename);
+      Logger::model->error("Texture failed to load at path: {}", filename);
       stbi_image_free(data);
     }
   }

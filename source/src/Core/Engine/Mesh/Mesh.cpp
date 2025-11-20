@@ -1,7 +1,7 @@
 #include "Mesh.h"
+#include "Logger.h"
 #include "Shader.h"
 #include <glm/ext/matrix_float4x4.hpp>
-#include <spdlog/spdlog.h>
 
 Mesh::Mesh(std::vector<Vertex> verts, std::vector<unsigned int> inds,
            std::vector<Texture> texs)
@@ -22,14 +22,14 @@ void Mesh::setupMesh() {
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
                  vertices.data(), GL_STATIC_DRAW);
   else
-    spdlog::warn("Mesh::setupMesh() - No vertex data found!");
+    Logger::mesh->warn("Mesh::setupMesh() - No vertex data found!");
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   if (!indices.empty())
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
                  indices.data(), GL_STATIC_DRAW);
   else
-    spdlog::warn("Mesh::setupMesh() - No index data found!");
+    Logger::mesh->warn("Mesh::setupMesh() - No index data found!");
 
   // Position
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
@@ -57,7 +57,7 @@ void Mesh::setupMesh() {
 void Mesh::Draw(Shader &shader, const glm::mat4 &transform,
                 const glm::vec3 &ambient, const float &shininess) {
   if (indices.empty()) {
-    spdlog::warn("Mesh::Draw() - No index data found!");
+    Logger::mesh->warn("Draw(): No index data found.");
     return;
   }
 

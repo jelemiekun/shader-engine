@@ -20,6 +20,7 @@ Engine::Engine() : m_Window(nullptr) {
 Engine::~Engine() {
   Logger::engine->info("Engine instance destroyed.");
   Logger::engine->info("Program terminated.");
+  Logger::free();
 }
 
 // Static Methods
@@ -30,33 +31,35 @@ Engine *Engine::getInstance() {
 
 // Class Public Methods
 void Engine::run() {
-  spdlog::info("[Engine] Initiating shader game engine...");
+  Logger::engine->info("Initializing shader game engine...");
   initEverything();
 
   if (m_Running) {
-    spdlog::info("[Engine] Entering game loop...");
+    Logger::engine->info("Entering game loop...");
     gameLoop();
   } else {
-    spdlog::error("[Engine] Initialization failed. Failed to enter game loop.");
+    Logger::engine->error("Failed to initialize shader game engine.");
+    Logger::engine->error("Program terminated.");
+    Logger::free();
   }
 }
 
 // Class Private Methods
 
 void Engine::initEverything() {
-  spdlog::info("[Engine] Initializing everything...");
+  Logger::engine->info("Initializing everything...");
 
   setOpenGLAttributes();
 
   m_Running = initSDL() && initWindow() && initOpenGLContext() && loadGLAD() &&
               initUI() && initBulletPhysics();
 
-  spdlog::info("[Engine] Initializing openGL Viewport...");
+  Logger::engine->info("Initializing OpenGL viewport...");
   initGLViewPort();
 }
 
 void Engine::setOpenGLAttributes() {
-  spdlog::info("[Engine] Setting OpenGL Attributes...");
+  Logger::engine->info("Setting OpenGL attributes...");
 
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -67,16 +70,16 @@ void Engine::setOpenGLAttributes() {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  spdlog::info("[Engine] OpenGL Attributes Setting Done.");
+  Logger::engine->info("OpenGL attributes setting done.");
 }
 
 bool Engine::initSDL() {
-  spdlog::info("[Engine] Initializing SDL...");
+  Logger::engine->info("Initializing SDL...");
   if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-    spdlog::error("[Engine] SDL Failed to initialize: {}", SDL_GetError());
+    Logger::engine->error("Failed to initialize SDL: {}", SDL_GetError());
     return false;
   } else {
-    spdlog::info("[Engine] SDL Initialized successfully.");
+    Logger::engine->info("Successfully initialized SDL.");
     return true;
   }
 }
@@ -91,10 +94,10 @@ bool Engine::initWindow() {
                               SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
   if (!m_Window) {
-    spdlog::error("[Engine] Window creation failed: {}", SDL_GetError());
+    Logger::engine->error("Failed to create window: {}", SDL_GetError());
     return false;
   } else {
-    spdlog::info("[Engine] Window created successfully.");
+    Logger::engine->info("Successfully created window.");
 
     m_WindowWidth = initWindowWidth;
     m_WindowHeight = initWindowHeight;
@@ -105,41 +108,45 @@ bool Engine::initWindow() {
 bool Engine::initOpenGLContext() {
   m_GLContext = SDL_GL_CreateContext(m_Window);
   if (!m_GLContext) {
-    spdlog::error("[Engine] SDL_GL_CreateContext failed: {}", SDL_GetError());
+    Logger::engine->error("Failed to create SDL_GL context: {}",
+                          SDL_GetError());
     return false;
   }
 
   SDL_GL_SetSwapInterval(
       0); // Disable VSync: allows rendering at uncapped FPS instead of syncing
           // to monitor's refresh rate (e.g., 60Hz)
-  spdlog::info("[Engine] SDL Context created successfully.");
+  Logger::engine->info("Successfully created SDL_GL context.");
   return true;
 }
 
 bool Engine::loadGLAD() {
   if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-    spdlog::error("[Engine] Failed to initialize GLAD.");
+    Logger::engine->error("Failed to initialize GLAD.");
     return false;
   }
-  spdlog::info("[Engine] GLAD loaded successfully.");
+  Logger::engine->info("Successfully loaded GLAD.");
   return true;
 }
 
 bool Engine::initUI() {
   bool initSuccess = ui->init(m_Window, m_GLContext);
   if (!initSuccess) {
-    spdlog::warn("[Engine] Failed to initialize UI.");
+    Logger::engine->warn("Failed to initialize UI.");
     return false;
   }
+
+  Logger::engine->info("Successfully initialized UI.");
   return true;
 }
 
 bool Engine::initBulletPhysics() {
   if (!physics->init()) {
     return false;
-    spdlog::info("[Engine] Bullet Physics failed to initialize.");
+    Logger::engine->info("Failed to initialize Bullet Physics.");
   }
 
+  Logger::engine->info("Successfully initialized Bullet Physics.");
   return true;
 }
 
@@ -153,7 +160,7 @@ void Engine::gameLoop() {
     update();
     render();
   }
-  spdlog::info("[Engine] Engineloop terminated.");
+  Logger::engine->info("Engine game loop terminated.");
   free();
 }
 
@@ -164,7 +171,7 @@ void Engine::handleInput() {
         (event.type == SDL_WINDOWEVENT &&
          event.window.event == SDL_WINDOWEVENT_CLOSE &&
          event.window.windowID == SDL_GetWindowID(m_Window))) {
-      spdlog::info("[Engine] Detected window close!");
+      Logger::engine->info("Detected window close!");
       m_Running = false;
       return;
     }
@@ -212,11 +219,11 @@ void Engine::calculateDeltaTime() {
 }
 
 void Engine::free() {
-  spdlog::info("[Engine] Destroying engine resources...");
+  Logger::engine->info("Destroying engine resources...");
   physics->free();
   ui->free();
   SDL_DestroyWindow(m_Window);
   SDL_GL_DeleteContext(m_GLContext);
   SDL_Quit();
-  spdlog::info("[Engine] Engine resources destroyed successfully.");
+  Logger::engine->info("Engine resources destroyed successfully.");
 }
