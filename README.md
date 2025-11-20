@@ -22,6 +22,7 @@ This project was inspired by focusing on shader programming, hence the project n
   - Perform transformation
 - Separate Window Class
 - Engine state (for shortcut keys when in engine/in game)
+- Upload your own skybox via folder selection containing the images
 
 ## Built With
 
