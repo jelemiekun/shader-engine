@@ -153,6 +153,10 @@ void calcTexturesColor() {
     specTexColor = texture(material.texture_specular1, v_TexCoord);
 }
 
+// TODO: Set uniform boolean value then determine if
+// what render mode is it then perform the neccessary
+// render mode on Fragcolor
+
 void main() {
     calcTexturesColor();
 

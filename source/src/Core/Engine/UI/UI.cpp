@@ -216,6 +216,7 @@ void UI::resetLayout() {
 }
 
 void UI::resetBitFieldsValues() {
+  // Toggle enable all panels
   Logger::ui->info("Resetting UI visibility bit fields values...");
   uiVisibility.left_panel = 1;
   uiVisibility.render_buffer = 1;

@@ -23,6 +23,9 @@ This project was inspired by focusing on shader programming, hence the project n
 - Separate Window Class
 - Engine state (for shortcut keys when in engine/in game)
 - Upload your own skybox via folder selection containing the images
+- Entry point for the actual game application
+- Networking (for multiplayers)
+- Ctrl+W = Set boolean false to currently selected imgui window
 
 ## Built With
 
