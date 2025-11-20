@@ -212,7 +212,8 @@ void Engine::update() {
 }
 
 void Engine::render() {
-  glClearColor(1.0, 1.0, 1.0, 1.0f);
+  // TODO: gawin 'tong dynamic, pede siguro ilipat 'to sa ui
+  glClearColor(0.141176, 0.137255, 0.137255, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
   ui->render();
