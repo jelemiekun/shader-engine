@@ -1,9 +1,7 @@
 #include "Camera.h"
-// #include "imgui/imgui.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mouse.h>
 
-namespace ProgramValues {
 namespace KeyEvents {
 bool isLockedIn = true;
 bool isLockedInPressed = false;
@@ -16,7 +14,6 @@ bool moveDownPressed = false;
 bool sprinting = false;
 bool fastZoom = false;
 } // namespace KeyEvents
-} // namespace ProgramValues
 
 Camera::Camera(glm::vec3 startPosition, glm::vec3 startUp, float startYaw,
                float startPitch)
@@ -36,12 +33,11 @@ void Camera::processKeyboard(SDL_Event &event, SDL_Window *window) {
   if (event.type == SDL_KEYDOWN) {
     switch (event.key.keysym.sym) {
     case SDLK_ESCAPE:
-      if (!ProgramValues::KeyEvents::isLockedInPressed) {
-        ProgramValues::KeyEvents::isLockedInPressed = true;
-        ProgramValues::KeyEvents::isLockedIn =
-            !ProgramValues::KeyEvents::isLockedIn;
+      if (!KeyEvents::isLockedInPressed) {
+        KeyEvents::isLockedInPressed = true;
+        KeyEvents::isLockedIn = !KeyEvents::isLockedIn;
 
-        if (!ProgramValues::KeyEvents::isLockedIn) {
+        if (!KeyEvents::isLockedIn) {
           int width, height;
           SDL_GetWindowSize(window, &width, &height);
           SDL_WarpMouseInWindow(window, width / 2, height / 2);
@@ -49,28 +45,28 @@ void Camera::processKeyboard(SDL_Event &event, SDL_Window *window) {
       }
       break;
     case SDLK_w:
-      ProgramValues::KeyEvents::moveForwardPressed = true;
+      KeyEvents::moveForwardPressed = true;
       break;
     case SDLK_a:
-      ProgramValues::KeyEvents::moveLeftPressed = true;
+      KeyEvents::moveLeftPressed = true;
       break;
     case SDLK_s:
-      ProgramValues::KeyEvents::moveBackwardPressed = true;
+      KeyEvents::moveBackwardPressed = true;
       break;
     case SDLK_d:
-      ProgramValues::KeyEvents::moveRightPressed = true;
+      KeyEvents::moveRightPressed = true;
       break;
     case SDLK_SPACE:
-      ProgramValues::KeyEvents::moveUpPressed = true;
+      KeyEvents::moveUpPressed = true;
       break;
     case SDLK_LCTRL:
-      ProgramValues::KeyEvents::moveDownPressed = true;
+      KeyEvents::moveDownPressed = true;
       break;
     case SDLK_r:
-      ProgramValues::KeyEvents::sprinting = true;
+      KeyEvents::sprinting = true;
       break;
     case SDLK_LSHIFT:
-      ProgramValues::KeyEvents::fastZoom = true;
+      KeyEvents::fastZoom = true;
       break;
     default:
       break;
@@ -78,33 +74,33 @@ void Camera::processKeyboard(SDL_Event &event, SDL_Window *window) {
   } else if (event.type == SDL_KEYUP) {
     switch (event.key.keysym.sym) {
     case SDLK_ESCAPE:
-      if (ProgramValues::KeyEvents::isLockedInPressed) {
-        ProgramValues::KeyEvents::isLockedInPressed = false;
+      if (KeyEvents::isLockedInPressed) {
+        KeyEvents::isLockedInPressed = false;
       }
       break;
     case SDLK_w:
-      ProgramValues::KeyEvents::moveForwardPressed = false;
+      KeyEvents::moveForwardPressed = false;
       break;
     case SDLK_a:
-      ProgramValues::KeyEvents::moveLeftPressed = false;
+      KeyEvents::moveLeftPressed = false;
       break;
     case SDLK_s:
-      ProgramValues::KeyEvents::moveBackwardPressed = false;
+      KeyEvents::moveBackwardPressed = false;
       break;
     case SDLK_d:
-      ProgramValues::KeyEvents::moveRightPressed = false;
+      KeyEvents::moveRightPressed = false;
       break;
     case SDLK_SPACE:
-      ProgramValues::KeyEvents::moveUpPressed = false;
+      KeyEvents::moveUpPressed = false;
       break;
     case SDLK_LCTRL:
-      ProgramValues::KeyEvents::moveDownPressed = false;
+      KeyEvents::moveDownPressed = false;
       break;
     case SDLK_r:
-      ProgramValues::KeyEvents::sprinting = false;
+      KeyEvents::sprinting = false;
       break;
     case SDLK_LSHIFT:
-      ProgramValues::KeyEvents::fastZoom = false;
+      KeyEvents::fastZoom = false;
       break;
     default:
       break;
@@ -113,7 +109,7 @@ void Camera::processKeyboard(SDL_Event &event, SDL_Window *window) {
 }
 
 void Camera::processMouseMotion(SDL_Event &event) {
-  if (event.type == SDL_MOUSEMOTION && ProgramValues::KeyEvents::isLockedIn) {
+  if (event.type == SDL_MOUSEMOTION && KeyEvents::isLockedIn) {
     float xoffset = static_cast<float>(event.motion.xrel);
     float yoffset = static_cast<float>(event.motion.yrel);
 
@@ -130,14 +126,12 @@ void Camera::processMouseMotion(SDL_Event &event) {
   } else if (event.type == SDL_MOUSEBUTTONDOWN) {
     // ImGuiIO &io = ImGui::GetIO();
     // if (event.button.button == SDL_BUTTON_LEFT &&
-    //     !ProgramValues::KeyEvents::isLockedIn && !io.WantCaptureMouse)
-    //  ProgramValues::KeyEvents::isLockedIn = true;
-  } else if (event.type == SDL_MOUSEWHEEL &&
-             ProgramValues::KeyEvents::isLockedIn) {
+    //     !KeyEvents::isLockedIn && !io.WantCaptureMouse)
+    //  KeyEvents::isLockedIn = true;
+  } else if (event.type == SDL_MOUSEWHEEL && KeyEvents::isLockedIn) {
     float localSensitivity =
-        ProgramValues::KeyEvents::fastZoom
-            ? event.wheel.y * sensitivity * FOV_SPEED_MULTIPLIER
-            : event.wheel.y * sensitivity;
+        KeyEvents::fastZoom ? event.wheel.y * sensitivity * FOV_SPEED_MULTIPLIER
+                            : event.wheel.y * sensitivity;
     fov -= localSensitivity;
 
     if (fov < 1.0f)
@@ -148,24 +142,23 @@ void Camera::processMouseMotion(SDL_Event &event) {
 }
 
 void Camera::update() {
-  SDL_SetRelativeMouseMode(ProgramValues::KeyEvents::isLockedIn ? SDL_TRUE
-                                                                : SDL_FALSE);
+  SDL_SetRelativeMouseMode(KeyEvents::isLockedIn ? SDL_TRUE : SDL_FALSE);
 
-  if (ProgramValues::KeyEvents::isLockedIn) {
+  if (KeyEvents::isLockedIn) {
     float modifiedSpeed =
-        ProgramValues::KeyEvents::sprinting ? speed * SPRINT_MULTIPLIER : speed;
+        KeyEvents::sprinting ? speed * SPRINT_MULTIPLIER : speed;
 
-    if (ProgramValues::KeyEvents::moveForwardPressed)
+    if (KeyEvents::moveForwardPressed)
       position += modifiedSpeed * front;
-    if (ProgramValues::KeyEvents::moveLeftPressed)
+    if (KeyEvents::moveLeftPressed)
       position -= glm::normalize(glm::cross(front, up)) * modifiedSpeed;
-    if (ProgramValues::KeyEvents::moveBackwardPressed)
+    if (KeyEvents::moveBackwardPressed)
       position -= modifiedSpeed * front;
-    if (ProgramValues::KeyEvents::moveRightPressed)
+    if (KeyEvents::moveRightPressed)
       position += glm::normalize(glm::cross(front, up)) * modifiedSpeed;
-    if (ProgramValues::KeyEvents::moveUpPressed)
+    if (KeyEvents::moveUpPressed)
       position += speed * up;
-    if (ProgramValues::KeyEvents::moveDownPressed)
+    if (KeyEvents::moveDownPressed)
       position -= speed * up;
 
     updateCameraVectors();

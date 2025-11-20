@@ -1,5 +1,4 @@
 #include "ImGUIWindow.h"
-#include "Game.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "imgui.h"
@@ -146,8 +145,6 @@ void ImGUIWindow::resetLayout() {
 }
 
 void ImGUIWindow::render() {
-  static Game *game = Game::getInstance();
-
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();

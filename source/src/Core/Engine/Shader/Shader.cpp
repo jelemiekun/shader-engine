@@ -1,5 +1,4 @@
 #include "Shader.h"
-#include "Game.h"
 #include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <spdlog/spdlog.h>
@@ -135,8 +134,7 @@ void Shader::bind() const {
 
   // TODO: remove after use
   if (!usable) {
-    Game *game = Game::getInstance();
-    game->m_Running = false;
+    // TODO: don't run the program amd notify only that the shader is unusable
   }
 }
 

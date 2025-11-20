@@ -1,8 +1,7 @@
 #define SDL_MAIN_HANDLED
-#include "Game.h"
+#include "Engine.h"
 
 int main(int argc, char *argv[]) {
-  Game *game = Game::getInstance();
-  game->run();
+  Engine::getInstance()->run();
   return 0;
 }
