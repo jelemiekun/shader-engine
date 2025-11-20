@@ -196,15 +196,17 @@ void UI::resetLayout() {
       dockspace_id, ImGuiDockNodeFlags_DockSpace); // creates a new dock node
   ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->Size);
 
-  ImGuiID dock_main_id = dockspace_id;
+  ImGuiID dock_top_id = dockspace_id;
   ImGuiID dock_left_id = ImGui::DockBuilderSplitNode(
-      dock_main_id, ImGuiDir_Left, 0.20f, nullptr, &dock_main_id);
+      dock_top_id, ImGuiDir_Left, 0.20f, nullptr, &dock_top_id);
   ImGuiID dock_right_id = ImGui::DockBuilderSplitNode(
-      dock_main_id, ImGuiDir_Right, 0.25f, nullptr, &dock_main_id);
+      dock_top_id, ImGuiDir_Right, 0.25f, nullptr, &dock_top_id);
   ImGuiID dock_bottom_id = ImGui::DockBuilderSplitNode(
-      dock_main_id, ImGuiDir_Down, 0.25f, nullptr, &dock_main_id);
+      dock_top_id, ImGuiDir_Down, 0.25f, nullptr, &dock_top_id);
 
-  ImGui::DockBuilderDockWindow("Render Buffer", dock_main_id);
+  // TODO: Separate and bundle window names instead of hardcoding each
+  ImGui::DockBuilderDockWindow("Render Buffer", dock_top_id);
+  ImGui::DockBuilderDockWindow("Script Editor", dock_top_id);
   ImGui::DockBuilderDockWindow("Left Panel", dock_left_id);
   ImGui::DockBuilderDockWindow("Right Panel", dock_right_id);
   ImGui::DockBuilderDockWindow("Right Panel 2", dock_right_id);
@@ -217,6 +219,7 @@ void UI::resetBitFieldsValues() {
   Logger::ui->info("Resetting UI visibility bit fields values...");
   uiVisibility.left_panel = 1;
   uiVisibility.render_buffer = 1;
+  uiVisibility.script_editor = 1;
   uiVisibility.right_panel = 1;
   uiVisibility.right_panel_2 = 1;
   uiVisibility.bottom_panel = 1;
@@ -247,52 +250,69 @@ void UI::render() {
 }
 
 void UI::renderImGuiWindows() {
+  // TODO: Separate and bundle window names instead of hardcoding each
+
   static bool open = false;
 
-  if (uiVisibility.left_panel) {
-    open = uiVisibility.left_panel;
-    ImGui::Begin("Left Panel", &open);
-    ImGui::Text("Reset Layout");
-    static int b_ResetLayout = 0;
-    if (ImGui::Button("Reset"))
-      b_ResetLayout++;
-    if (b_ResetLayout & 1) {
-      willResetLayout = true;
-      b_ResetLayout++;
+  { // Left Panel
+    if (uiVisibility.left_panel) {
+      open = uiVisibility.left_panel;
+      ImGui::Begin("Left Panel", &open);
+      ImGui::Text("Reset Layout");
+      static int b_ResetLayout = 0;
+      if (ImGui::Button("Reset"))
+        b_ResetLayout++;
+      if (b_ResetLayout & 1) {
+        willResetLayout = true;
+        b_ResetLayout++;
+      }
+      ImGui::End();
+      uiVisibility.left_panel = open;
     }
-    ImGui::End();
-    uiVisibility.left_panel = open;
   }
 
-  if (uiVisibility.render_buffer) {
-    open = uiVisibility.render_buffer;
-    ImGui::Begin("Render Buffer", &open);
-    ImGui::End();
-    uiVisibility.render_buffer = open;
+  { // Top Panel
+    if (uiVisibility.render_buffer) {
+      open = uiVisibility.render_buffer;
+      ImGui::Begin("Render Buffer", &open);
+      ImGui::End();
+      uiVisibility.render_buffer = open;
+    }
+
+    if (uiVisibility.script_editor) {
+      open = uiVisibility.script_editor;
+      ImGui::Begin("Script Editor", &open);
+      ImGui::End();
+      uiVisibility.script_editor = open;
+    }
   }
 
-  if (uiVisibility.right_panel) {
-    open = uiVisibility.right_panel;
-    ImGui::Begin("Right Panel", &open);
-    ImGui::Text("Meow!");
-    ImGui::End();
-    uiVisibility.right_panel = open;
+  { // Right Panel
+    if (uiVisibility.right_panel) {
+      open = uiVisibility.right_panel;
+      ImGui::Begin("Right Panel", &open);
+      ImGui::Text("Meow!");
+      ImGui::End();
+      uiVisibility.right_panel = open;
+    }
+
+    if (uiVisibility.right_panel_2) {
+      open = uiVisibility.right_panel_2;
+      ImGui::Begin("Right Panel 2", &open);
+      ImGui::Text("...........");
+      ImGui::End();
+      uiVisibility.right_panel_2 = open;
+    }
   }
 
-  if (uiVisibility.right_panel_2) {
-    open = uiVisibility.right_panel_2;
-    ImGui::Begin("Right Panel 2", &open);
-    ImGui::Text("...........");
-    ImGui::End();
-    uiVisibility.right_panel_2 = open;
-  }
-
-  if (uiVisibility.bottom_panel) {
-    open = uiVisibility.bottom_panel;
-    ImGui::Begin("Log", &open);
-    ImGui::Text("Event logs will show here...");
-    ImGui::End();
-    uiVisibility.bottom_panel = open;
+  { // Bottom Panel
+    if (uiVisibility.bottom_panel) {
+      open = uiVisibility.bottom_panel;
+      ImGui::Begin("Log", &open);
+      ImGui::Text("Event logs will show here...");
+      ImGui::End();
+      uiVisibility.bottom_panel = open;
+    }
   }
 }
 
