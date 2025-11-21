@@ -26,6 +26,13 @@ This project was inspired by focusing on shader programming, hence the project n
 - Entry point for the actual game application
 - Networking (for multiplayers)
 - Ctrl+W = Set boolean false to currently selected imgui window
+- Embedded scripting languages:
+  - python (_via_ Pybind11)
+  - lua (_via_ LuaJIT)
+- Scripting editor for embedded scripting languages (_via_ ...)
+- Upload your own background for game engine and set opacity
+- Window options for each imgui window
+- Change font size and color
 
 ## Built With
 
