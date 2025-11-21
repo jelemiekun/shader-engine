@@ -40,6 +40,17 @@ This project was inspired by focusing on shader programming, hence the project n
 
 ## Build Source File
 ### Windows
+- Download vcpkg
+- Perform:
+```bash
+vcpkg install sdl2:x64-windows
+vcpkg install glm:x64-windows
+vcpkg install spdlog:x64-windows
+vcpkg install assimp:x64-windows
+vcpkg install bullet3:x64-windows
+
+vcpkg integrate install
+```
 - Clone repo
 - Perform:
 ```bash
@@ -48,6 +59,20 @@ cmake --build build
 ```
   - Open ShaderEngine.sln with Visual Studio
   - Build ShaderExe project
+
+### Unix
+#### Debian Based
+- Perform:
+```bash
+sudo apt update
+sudo apt install libsdl2-dev libglm-dev libspdlog-dev libassimp-dev libbullet-dev
+```
+- Clone repo
+- Perform:
+```bash
+cmake -S source -B build
+cmake --build build
+```
 
 ## Usage
 
