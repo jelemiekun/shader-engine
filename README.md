@@ -57,8 +57,11 @@ vcpkg integrate install
 cmake -S source -B build -DCMAKE_TOOLCHAIN_FILE=C:/path/to/your/vcpkg.cmake
 cmake --build build
 ```
-  - Open ShaderEngine.sln with Visual Studio
-  - Build ShaderExe project
+  - Open `build/ShaderEngine.sln` in Visual Studio
+  - Select configuration: Debug/Release
+  - Build *ShaderExe*
+  - Look for out folder then find `Debug`/`Release` folder
+  - Run `ShaderExe.exe`
 
 ### Unix
 #### Debian Based
@@ -72,6 +75,7 @@ sudo apt install libsdl2-dev libglm-dev libspdlog-dev libassimp-dev libbullet-de
 ```bash
 cmake -S source -B build
 cmake --build build
+./build/ShaderExe
 ```
 
 ## Usage
